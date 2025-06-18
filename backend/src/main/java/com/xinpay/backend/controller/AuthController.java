@@ -23,6 +23,8 @@ public class AuthController {
     // ✅ SIGN UP using Map
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody Map<String, String> body) {
+    	
+    	//System.out.println("SIGNUP CALLED → body = " + body);
         String email = body.get("email");
         String password = body.get("password");
         String fullName = body.get("fullName");
