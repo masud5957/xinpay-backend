@@ -20,22 +20,21 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // ✅ SIGN UP using Map
+    // ✅ SIGN UP
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody Map<String, String> body) {
-    	
-    	//System.out.println("SIGNUP CALLED → body = " + body);
         String email = body.get("email");
         String password = body.get("password");
         String fullName = body.get("fullName");
 
         if (email == null || password == null || fullName == null) {
-            return ResponseEntity.badRequest().body("Missing required fields.");
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields."));
         }
 
         Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists. Please login.");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "User already exists. Please login."));
         }
 
         User user = new User();
@@ -44,32 +43,43 @@ public class AuthController {
         user.setFullName(fullName);
         userRepository.save(user);
 
-        return ResponseEntity.ok("User registered successfully!");
+        // Auto-login after signup (optional)
+        String token = jwtUtil.generateToken(email);
+        return ResponseEntity.ok(Map.of(
+                "message", "User registered successfully!",
+                "token", token,
+                "userId", String.valueOf(user.getId())
+        ));
     }
 
-    // ✅ LOGIN using Map
+    // ✅ LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String password = body.get("password");
 
         if (email == null || password == null) {
-            return ResponseEntity.badRequest().body("Missing email or password.");
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing email or password."));
         }
 
         Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User does not exist. Please sign up.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "User does not exist. Please sign up."));
         }
 
-        if (!existingUser.get().getPassword().equals(password)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password.");
+        User user = existingUser.get();
+
+        if (!user.getPassword().equals(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Incorrect password."));
         }
 
         String token = jwtUtil.generateToken(email);
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "userId", String.valueOf(user.getId())
+        ));
     }
 }
