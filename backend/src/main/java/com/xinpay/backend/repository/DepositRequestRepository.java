@@ -1,4 +1,3 @@
-// ✅ DepositRequestRepository.java
 package com.xinpay.backend.repository;
 
 import com.xinpay.backend.model.DepositRequest;
@@ -11,4 +10,5 @@ public interface DepositRequestRepository extends JpaRepository<DepositRequest, 
     Optional<DepositRequest> findTopByUserIdOrderByIdDesc(String userId);
     List<DepositRequest> findByVerifiedFalse();
     List<DepositRequest> findAllByUserIdOrderByIdDesc(String userId);
+    List<DepositRequest> findByUserIdAndVerifiedTrue(String userId); // ✅ New for balance
 }
