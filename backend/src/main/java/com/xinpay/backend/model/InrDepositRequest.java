@@ -3,17 +3,22 @@ package com.xinpay.backend.model;
 import jakarta.persistence.*;
 
 @Entity
-public class DepositRequest {
+@Table(name = "inr_deposit_requests")
+public class InrDepositRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String userId;
-    private String imageUrl;
-    private boolean verified;
-    private Double amount; // ✅ New field
 
+    private String imageUrl;
+
+    private boolean verified;
+
+    private Double amount;
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }

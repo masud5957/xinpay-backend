@@ -1,7 +1,7 @@
 package com.xinpay.backend.controller;
 
-import com.xinpay.backend.model.DepositRequest;
-import com.xinpay.backend.service.DepositService;
+import com.xinpay.backend.model.InrDepositRequest;
+import com.xinpay.backend.service.InrDepositService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,41 +11,44 @@ import java.io.IOException;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/inr-deposits")
 @CrossOrigin(origins = "*")
-public class DepositController {
+public class InrDepositController {
 
     @Autowired
-    private DepositService depositService;
+    private InrDepositService inrDepositService;
 
+    // ✅ Upload INR deposit
     @PostMapping("/upload")
     public ResponseEntity<?> upload(
             @RequestParam("userId") String userId,
             @RequestParam("amount") Double amount,
             @RequestPart("file") MultipartFile file) {
         try {
-            DepositRequest saved = depositService.uploadDeposit(userId, file, amount);
+            InrDepositRequest saved = inrDepositService.uploadDeposit(userId, file, amount);
             return ResponseEntity.ok(saved);
         } catch (IOException e) {
             return ResponseEntity.status(500).body("Upload failed: " + e.getMessage());
         }
     }
 
-    @GetMapping("/deposit/status/{userId}")
+    // ✅ Get latest deposit status for user
+    @GetMapping("/status/{userId}")
     public ResponseEntity<?> getStatus(@PathVariable String userId) {
-        Optional<DepositRequest> deposit = depositService.getDepositByUserId(userId);
+        Optional<InrDepositRequest> deposit = inrDepositService.getDepositByUserId(userId);
         return deposit.<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/inr-deposits/pending")
+    // ✅ Admin: Get pending INR deposits
+    @GetMapping("/pending")
     public ResponseEntity<List<Map<String, Object>>> getPendingDeposits() {
-        List<DepositRequest> pending = depositService.getPendingDeposits();
+        List<InrDepositRequest> pending = inrDepositService.getPendingDeposits();
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String baseUrl = "https://xinpay-backend.onrender.com"; // ✅ Your backend URL
+        String baseUrl = "https://xinpay-backend.onrender.com"; // Replace with your production domain
 
-        for (DepositRequest deposit : pending) {
+        for (InrDepositRequest deposit : pending) {
             Map<String, Object> row = new HashMap<>();
             row.put("id", deposit.getId());
             row.put("userId", deposit.getUserId());
@@ -58,25 +61,23 @@ public class DepositController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/inr-deposits/{id}/verify")
+    // ✅ Admin: Verify deposit
+    @PutMapping("/{id}/verify")
     public ResponseEntity<?> verify(@PathVariable Long id) {
-        boolean status = depositService.verifyDeposit(id);
+        boolean status = inrDepositService.verifyDeposit(id);
         return status ? ResponseEntity.ok("Verified") : ResponseEntity.status(404).body("Not found");
     }
 
-    @GetMapping("/deposit/all/{userId}")
-    public ResponseEntity<List<DepositRequest>> getAll(@PathVariable String userId) {
-        return ResponseEntity.ok(depositService.getAllDepositsByUser(userId));
+    // ✅ User: Get all deposit history
+    @GetMapping("/all/{userId}")
+    public ResponseEntity<List<InrDepositRequest>> getAll(@PathVariable String userId) {
+        return ResponseEntity.ok(inrDepositService.getAllDepositsByUser(userId));
     }
-    
-    
 
-    
-
-    // ✅ New API: Get total verified balance for a user
+    // ✅ User: Get current INR balance
     @GetMapping("/balance/{userId}")
     public ResponseEntity<?> getBalance(@PathVariable String userId) {
-        double total = depositService.getTotalBalanceByUser(userId);
+        double total = inrDepositService.getTotalBalanceByUser(userId);
         Map<String, Object> response = new HashMap<>();
         response.put("userId", userId);
         response.put("totalBalance", total);
