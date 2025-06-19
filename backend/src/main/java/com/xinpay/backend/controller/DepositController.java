@@ -1,4 +1,3 @@
-// ✅ DepositController.java
 package com.xinpay.backend.controller;
 
 import com.xinpay.backend.model.DepositRequest;
@@ -13,11 +12,13 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*") // Optional: to allow CORS for frontend
 public class DepositController {
 
     @Autowired
     private DepositService depositService;
 
+    // ✅ Upload Deposit Screenshot
     @PostMapping("/upload")
     public ResponseEntity<?> upload(
             @RequestParam("userId") String userId,
@@ -31,6 +32,7 @@ public class DepositController {
         }
     }
 
+    // ✅ Get latest deposit status for a user
     @GetMapping("/deposit/status/{userId}")
     public ResponseEntity<?> getStatus(@PathVariable String userId) {
         Optional<DepositRequest> deposit = depositService.getDepositByUserId(userId);
@@ -38,10 +40,13 @@ public class DepositController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // ✅ Admin Panel: Get all pending deposits (with correct Render URL)
     @GetMapping("/inr-deposits/pending")
     public ResponseEntity<List<Map<String, Object>>> getPendingDeposits() {
         List<DepositRequest> pending = depositService.getPendingDeposits();
         List<Map<String, Object>> result = new ArrayList<>();
+
+        String baseUrl = "https://xinpay-backend.onrender.com"; // 🔁 Updated to your actual Render deployment URL
 
         for (DepositRequest deposit : pending) {
             Map<String, Object> row = new HashMap<>();
@@ -49,21 +54,21 @@ public class DepositController {
             row.put("userId", deposit.getUserId());
             row.put("status", deposit.isVerified() ? "Verified" : "Pending");
             row.put("amount", deposit.getAmount());
-            String baseUrl = "http://localhost:8080";
             row.put("screenshotUrl", baseUrl + "/uploads/" + deposit.getImageUrl());
-
             result.add(row);
         }
 
         return ResponseEntity.ok(result);
     }
 
+    // ✅ Admin Panel: Mark deposit as verified
     @PutMapping("/inr-deposits/{id}/verify")
     public ResponseEntity<?> verify(@PathVariable Long id) {
         boolean status = depositService.verifyDeposit(id);
         return status ? ResponseEntity.ok("Verified") : ResponseEntity.status(404).body("Not found");
     }
 
+    // ✅ Mobile App: Get all deposits for a user
     @GetMapping("/deposit/all/{userId}")
     public ResponseEntity<List<DepositRequest>> getAll(@PathVariable String userId) {
         return ResponseEntity.ok(depositService.getAllDepositsByUser(userId));
