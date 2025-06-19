@@ -21,23 +21,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // ❌ CSRF disabled for REST APIs
+            .csrf(csrf -> csrf.disable()) // ❌ Disable CSRF for API use
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/auth/**",      // ✅ Allow login/signup
-                    "/ping",         // ✅ Health/ping check
-                    "/error",        // ✅ Default error handler
-                    "/",             // ✅ Default root
-                    "/test/**"       // ✅ Optional testing endpoint
+                    "/auth/**",                 // ✅ Public auth endpoints
+                    "/ping",                    // ✅ Health check
+                    "/error",                   // ✅ Spring error handler
+                    "/",                        // ✅ Homepage
+                    "/test/**",                 // ✅ Testing endpoints
+                    "/uploads/**",              // ✅ Serve uploaded files (screenshots)
+                    "/api/upload",              // ✅ Android uploads
+                    "/api/deposit/status/**",   // ✅ Status check for Android
+                    "/api/inr-deposits/**"      // ✅ Admin panel (frontend access)
                 ).permitAll()
-                .anyRequest().authenticated() // 🔒 Everything else secured
+                .anyRequest().authenticated() // 🔐 Secure everything else
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // ✅ Expose AuthenticationManager (only needed if you plan to use it directly)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
