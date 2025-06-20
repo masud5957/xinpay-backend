@@ -24,17 +24,19 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // ❌ Disable CSRF for API use
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/auth/**",                 // ✅ Public auth endpoints
-                    "/ping",                    // ✅ Health check
-                    "/error",                   // ✅ Spring error handler
-                    "/",                        // ✅ Homepage
-                    "/test/**",                 // ✅ Testing endpoints
-                    "/uploads/**",              // ✅ Serve uploaded files (screenshots)
-                    "/api/upload",              // ✅ Android uploads
-                    "/api/deposit/status/**",   // ✅ Status check for Android
-                    "/api/inr-deposits/**"      // ✅ Admin panel (frontend access)
+                    "/auth/**",                  // ✅ Public auth endpoints
+                    "/ping",                     // ✅ Health check
+                    "/error",                    // ✅ Spring error handler
+                    "/",                         // ✅ Homepage
+                    "/test/**",                  // ✅ Testing endpoints
+                    "/uploads/**",               // ✅ Serve uploaded screenshots
+                    "/api/upload",               // ✅ Upload endpoint
+                    "/api/deposit/status/**",    // ✅ Deposit status check
+                    "/api/inr-deposits/**",      // ✅ INR admin & user endpoints
+                    "/api/usdt-deposits/**",     // ✅ ✅ USDT admin & user endpoints — newly added
+                    "/api/balance/**"            // ✅ Balance fetch
                 ).permitAll()
-                .anyRequest().authenticated() // 🔐 Secure everything else
+                .anyRequest().authenticated()    // 🔐 Everything else requires auth
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
