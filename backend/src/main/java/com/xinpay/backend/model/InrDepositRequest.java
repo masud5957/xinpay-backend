@@ -1,6 +1,9 @@
 package com.xinpay.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "inr_deposit_requests")
@@ -18,7 +21,10 @@ public class InrDepositRequest {
 
     private Double amount;
 
-    // Getters and Setters
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // ✅ Format for JSON response
+    private LocalDateTime verifiedAt;
+
+    // ✅ Getters and Setters
     public Long getId() {
         return id;
     }
@@ -57,5 +63,14 @@ public class InrDepositRequest {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    // ✅ New Getter & Setter
+    public LocalDateTime getVerifiedAt() {
+        return verifiedAt;
+    }
+
+    public void setVerifiedAt(LocalDateTime verifiedAt) {
+        this.verifiedAt = verifiedAt;
     }
 }
