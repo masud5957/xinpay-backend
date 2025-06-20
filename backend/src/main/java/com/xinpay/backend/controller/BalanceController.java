@@ -1,7 +1,6 @@
 package com.xinpay.backend.controller;
 
-import com.xinpay.backend.model.Balance;
-import com.xinpay.backend.repository.BalanceRepository;
+import com.xinpay.backend.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,25 +10,19 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/balance")
-@CrossOrigin(origins = "*")
+@CrossOrigin("*") // Allow requests from any origin
 public class BalanceController {
 
     @Autowired
-    private BalanceRepository balanceRepository;
+    private BalanceService balanceService;
 
+    // ✅ Endpoint to get INR and USDT balance for a user
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getCombinedBalance(@PathVariable String userId) {
-        Balance balance = balanceRepository.findById(userId).orElse(null);
-        if (balance == null) {
-            balance = new Balance(userId, 0.0, 0.0);
-            balanceRepository.save(balance);
-        }
-
+    public ResponseEntity<Map<String, Object>> getBalance(@PathVariable String userId) {
         Map<String, Object> response = new HashMap<>();
         response.put("userId", userId);
-        response.put("inrBalance", balance.getInrBalance());
-        response.put("usdtBalance", balance.getUsdtBalance());
-
+        response.put("inrBalance", balanceService.getInr(userId));
+        response.put("usdtBalance", balanceService.getUsdt(userId));
         return ResponseEntity.ok(response);
     }
 }

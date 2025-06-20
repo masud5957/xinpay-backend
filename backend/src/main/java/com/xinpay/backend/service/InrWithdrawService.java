@@ -1,9 +1,8 @@
 package com.xinpay.backend.service;
 
-import com.xinpay.backend.model.InrDepositRequest;
 import com.xinpay.backend.model.InrWithdrawRequest;
-import com.xinpay.backend.repository.InrDepositRequestRepository;
 import com.xinpay.backend.repository.InrWithdrawRequestRepository;
+import com.xinpay.backend.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,7 @@ public class InrWithdrawService {
     private InrWithdrawRequestRepository withdrawRepo;
 
     @Autowired
-    private InrDepositRequestRepository depositRepo;
+    private BalanceService balanceService;
 
     // ✅ Save a new withdraw request
     public InrWithdrawRequest saveWithdrawRequest(InrWithdrawRequest request) {
@@ -35,33 +34,25 @@ public class InrWithdrawService {
         return withdrawRepo.findByApprovedFalse();
     }
 
-    // ✅ Approve a withdraw request by ID (admin) with balance deduction
+    // ✅ Admin: Approve withdrawal and deduct from Balance table
     public boolean approveWithdrawal(Long id) {
         Optional<InrWithdrawRequest> optional = withdrawRepo.findById(id);
         if (optional.isPresent()) {
             InrWithdrawRequest request = optional.get();
 
-            // Calculate total verified balance
-            List<InrDepositRequest> verifiedDeposits = depositRepo.findByUserIdAndVerifiedTrue(request.getUserId());
-            double currentBalance = verifiedDeposits.stream()
-                    .mapToDouble(InrDepositRequest::getAmount)
-                    .sum();
+            double currentBalance = balanceService.getInr(request.getUserId());
 
             if (currentBalance >= request.getAmount()) {
-                // Save negative deposit to reflect deduction
-                InrDepositRequest deduction = new InrDepositRequest();
-                deduction.setUserId(request.getUserId());
-                deduction.setAmount(-request.getAmount());
-                deduction.setVerified(true);
-                deduction.setImageUrl("withdrawal"); // Optional marker
-                depositRepo.save(deduction);
+                // Deduct from actual Balance table
+                balanceService.subtractInr(request.getUserId(), request.getAmount());
 
-                // Approve withdrawal
+                // Mark as approved
                 request.setApproved(true);
                 withdrawRepo.save(request);
+
                 return true;
             } else {
-                throw new RuntimeException("Insufficient balance for withdrawal.");
+                throw new RuntimeException("Insufficient INR balance.");
             }
         }
         return false;

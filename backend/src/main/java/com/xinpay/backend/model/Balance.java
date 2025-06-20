@@ -1,8 +1,7 @@
+// 1. Create Balance.java entity
 package com.xinpay.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "balances")
@@ -11,8 +10,8 @@ public class Balance {
     @Id
     private String userId;
 
-    private double inrBalance = 0.0;
-    private double usdtBalance = 0.0;
+    private double inrBalance;
+    private double usdtBalance;
 
     public Balance() {}
 
@@ -45,4 +44,4 @@ public class Balance {
     public void setUsdtBalance(double usdtBalance) {
         this.usdtBalance = usdtBalance;
     }
-}
+} 
