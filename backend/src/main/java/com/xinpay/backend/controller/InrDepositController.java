@@ -73,7 +73,7 @@ public class InrDepositController {
         return status ? ResponseEntity.ok("Verified") : ResponseEntity.status(404).body("Not found");
     }
 
-    // ✅ User: Get all deposit history
+ // ✅ User: Get all deposit history
     @GetMapping("/all/{userId}")
     public ResponseEntity<List<Map<String, Object>>> getAll(@PathVariable String userId) {
         List<InrDepositRequest> all = inrDepositService.getAllDepositsByUser(userId);
@@ -86,11 +86,18 @@ public class InrDepositController {
             entry.put("amount", deposit.getAmount());
             entry.put("verified", deposit.isVerified());
             entry.put("type", deposit.getAmount() < 0 ? "Withdrawal" : "Deposit");
+
+            // ✅ Include verifiedAt (only if available)
+            if (deposit.getVerifiedAt() != null) {
+                entry.put("verifiedAt", deposit.getVerifiedAt().toString());
+            }
+
             response.add(entry);
         }
 
         return ResponseEntity.ok(response);
     }
+
     
     
 

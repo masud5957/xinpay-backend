@@ -65,6 +65,8 @@ public class InrDepositService {
             InrDepositRequest req = depositOpt.get();
             if (!req.isVerified()) {
                 req.setVerified(true);
+                req.setVerifiedAt(java.time.LocalDateTime.now()); // ✅ Set verified timestamp
+             
                 inrDepositRequestRepository.save(req);
 
                 // 🔁 Update user's INR balance
@@ -84,6 +86,7 @@ public class InrDepositService {
         }
         return false;
     }
+
 
     public List<InrDepositRequest> getPendingDeposits() {
         return inrDepositRequestRepository.findByVerifiedFalse();
