@@ -73,7 +73,7 @@ public class InrDepositController {
         return status ? ResponseEntity.ok("Verified") : ResponseEntity.status(404).body("Not found");
     }
 
- // ✅ User: Get all deposit history
+ // // ✅ User: Get all deposit history
     @GetMapping("/all/{userId}")
     public ResponseEntity<List<Map<String, Object>>> getAll(@PathVariable String userId) {
         List<InrDepositRequest> all = inrDepositService.getAllDepositsByUser(userId);
@@ -87,9 +87,10 @@ public class InrDepositController {
             entry.put("verified", deposit.isVerified());
             entry.put("type", deposit.getAmount() < 0 ? "Withdrawal" : "Deposit");
 
-            // ✅ Include verifiedAt (only if available)
+            // ✅ Format verifiedAt using a readable date-time format
             if (deposit.getVerifiedAt() != null) {
-                entry.put("verifiedAt", deposit.getVerifiedAt().toString());
+                String formattedDateTime = deposit.getVerifiedAt().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                entry.put("verifiedAt", formattedDateTime);
             }
 
             response.add(entry);
@@ -97,6 +98,7 @@ public class InrDepositController {
 
         return ResponseEntity.ok(response);
     }
+
 
     
     

@@ -22,6 +22,7 @@ public class InrDepositRequest {
     private Double amount;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // ✅ Format for JSON response
+    
     private LocalDateTime verifiedAt;
 
     // ✅ Getters and Setters
