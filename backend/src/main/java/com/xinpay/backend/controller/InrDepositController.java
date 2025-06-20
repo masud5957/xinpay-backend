@@ -91,6 +91,8 @@ public class InrDepositController {
 
         return ResponseEntity.ok(response);
     }
+    
+    
 
     // ✅ User: Get current INR + USDT balance
     @GetMapping("/balance/combined/{userId}")
