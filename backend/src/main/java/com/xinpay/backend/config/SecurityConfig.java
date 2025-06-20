@@ -21,22 +21,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // ❌ Disable CSRF for API use
+            .csrf(csrf -> csrf.disable()) // ❌ Disable CSRF for APIs
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/auth/**",                  // ✅ Public auth endpoints
-                    "/ping",                     // ✅ Health check
-                    "/error",                    // ✅ Spring error handler
-                    "/",                         // ✅ Homepage
-                    "/test/**",                  // ✅ Testing endpoints
-                    "/uploads/**",               // ✅ Serve uploaded screenshots
-                    "/api/upload",               // ✅ Upload endpoint
-                    "/api/deposit/status/**",    // ✅ Deposit status check
-                    "/api/inr-deposits/**",      // ✅ INR admin & user endpoints
-                    "/api/usdt-deposits/**",     // ✅ ✅ USDT admin & user endpoints — newly added
-                    "/api/balance/**"            // ✅ Balance fetch
+                    "/auth/**",                  // ✅ Public auth
+                    "/ping", "/error", "/",      // ✅ Health, home
+                    "/test/**",                  // ✅ Test
+                    "/uploads/**",               // ✅ Uploaded files
+                    "/api/upload",               // ✅ Upload
+                    "/api/deposit/status/**",    // ✅ Deposit status
+                    "/api/inr-deposits/**",      // ✅ INR deposit
+                    "/api/usdt-deposits/**",     // ✅ USDT deposit
+                    "/api/inr-withdraw/**",      // ✅ ✅ Allow INR withdraw endpoints
+                    "/api/balance/**"            // ✅ Balance
                 ).permitAll()
-                .anyRequest().authenticated()    // 🔐 Everything else requires auth
+                .anyRequest().authenticated()   // 🔐 Require auth for other routes
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
