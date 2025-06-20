@@ -46,7 +46,7 @@ public class InrDepositController {
         List<InrDepositRequest> pending = inrDepositService.getPendingDeposits();
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String baseUrl = "https://xinpay-backend.onrender.com"; // Replace with your production domain
+        String baseUrl = "https://xinpay-backend.onrender.com"; // Adjust to your backend URL
 
         for (InrDepositRequest deposit : pending) {
             Map<String, Object> row = new HashMap<>();
@@ -54,6 +54,7 @@ public class InrDepositController {
             row.put("userId", deposit.getUserId());
             row.put("status", deposit.isVerified() ? "Verified" : "Pending");
             row.put("amount", deposit.getAmount());
+            row.put("type", deposit.getAmount() < 0 ? "Withdrawal" : "Deposit");
             row.put("screenshotUrl", baseUrl + "/uploads/" + deposit.getImageUrl());
             result.add(row);
         }
@@ -70,8 +71,21 @@ public class InrDepositController {
 
     // ✅ User: Get all deposit history
     @GetMapping("/all/{userId}")
-    public ResponseEntity<List<InrDepositRequest>> getAll(@PathVariable String userId) {
-        return ResponseEntity.ok(inrDepositService.getAllDepositsByUser(userId));
+    public ResponseEntity<List<Map<String, Object>>> getAll(@PathVariable String userId) {
+        List<InrDepositRequest> all = inrDepositService.getAllDepositsByUser(userId);
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (InrDepositRequest deposit : all) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id", deposit.getId());
+            entry.put("userId", deposit.getUserId());
+            entry.put("amount", deposit.getAmount());
+            entry.put("verified", deposit.isVerified());
+            entry.put("type", deposit.getAmount() < 0 ? "Withdrawal" : "Deposit");
+            response.add(entry);
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     // ✅ User: Get current INR balance
