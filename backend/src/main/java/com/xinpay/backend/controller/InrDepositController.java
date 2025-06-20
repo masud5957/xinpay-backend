@@ -2,6 +2,7 @@ package com.xinpay.backend.controller;
 
 import com.xinpay.backend.model.InrDepositRequest;
 import com.xinpay.backend.service.InrDepositService;
+import com.xinpay.backend.service.UsdtDepositService; // ✅ Import USDT service
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,9 @@ public class InrDepositController {
 
     @Autowired
     private InrDepositService inrDepositService;
+
+    @Autowired
+    private UsdtDepositService usdtDepositService; // ✅ Inject USDT service
 
     // ✅ Upload INR deposit
     @PostMapping("/upload")
@@ -46,7 +50,7 @@ public class InrDepositController {
         List<InrDepositRequest> pending = inrDepositService.getPendingDeposits();
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String baseUrl = "https://xinpay-backend.onrender.com"; // Adjust to your backend URL
+        String baseUrl = "https://xinpay-backend.onrender.com";
 
         for (InrDepositRequest deposit : pending) {
             Map<String, Object> row = new HashMap<>();
@@ -88,13 +92,17 @@ public class InrDepositController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ User: Get current INR balance
-    @GetMapping("/balance/{userId}")
-    public ResponseEntity<?> getBalance(@PathVariable String userId) {
-        double total = inrDepositService.getTotalBalanceByUser(userId);
+    // ✅ User: Get current INR + USDT balance
+    @GetMapping("/balance/combined/{userId}")
+    public ResponseEntity<?> getCombinedBalance(@PathVariable String userId) {
+        double inrBalance = inrDepositService.getTotalBalanceByUser(userId);
+        double usdtBalance = usdtDepositService.getTotalBalanceByUser(userId); // ✅ from USDT service
+
         Map<String, Object> response = new HashMap<>();
         response.put("userId", userId);
-        response.put("totalBalance", total);
+        response.put("inrBalance", inrBalance);
+        response.put("usdtBalance", usdtBalance);
+
         return ResponseEntity.ok(response);
     }
 }
