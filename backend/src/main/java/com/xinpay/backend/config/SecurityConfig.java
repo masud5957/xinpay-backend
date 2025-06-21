@@ -33,6 +33,7 @@ public class SecurityConfig {
                     "/api/inr-deposits/**",      // ✅ INR deposit
                     "/api/usdt-deposits/**",     // ✅ USDT deposit
                     "/api/inr-withdraw/**",      // ✅ ✅ Allow INR withdraw endpoints
+                    "/api/usdt-withdraw/**",
                     "/api/balance/**"            // ✅ Balance
                 ).permitAll()
                 .anyRequest().authenticated()   // 🔐 Require auth for other routes
