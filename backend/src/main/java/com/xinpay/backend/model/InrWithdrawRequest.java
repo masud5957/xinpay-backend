@@ -2,8 +2,8 @@ package com.xinpay.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "inr_withdraw_requests")
@@ -23,10 +23,11 @@ public class InrWithdrawRequest {
 
     private boolean approved;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") // ✅ Date format for JSON response
-    private LocalDateTime requestedAt; // ✅ New field
+    @CreationTimestamp
+    @Column(updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime requestedAt;
 
-    // Constructors
     public InrWithdrawRequest() {}
 
     public InrWithdrawRequest(String userId, Double amount, String accountNumber, String ifscCode, boolean approved) {
@@ -37,7 +38,6 @@ public class InrWithdrawRequest {
         this.approved = approved;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -94,3 +94,5 @@ public class InrWithdrawRequest {
         this.requestedAt = requestedAt;
     }
 }
+
+

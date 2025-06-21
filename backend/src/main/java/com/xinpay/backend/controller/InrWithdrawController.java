@@ -5,13 +5,12 @@ import com.xinpay.backend.service.InrWithdrawService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/inr-withdraw")
-@CrossOrigin(origins = "*") // Allow CORS for frontend access
+@CrossOrigin(origins = "*")
 public class InrWithdrawController {
 
     @Autowired
@@ -19,15 +18,12 @@ public class InrWithdrawController {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
 
-    // ✅ User: Submit INR withdraw request
     @PostMapping("/request")
     public ResponseEntity<InrWithdrawRequest> requestWithdraw(@RequestBody InrWithdrawRequest request) {
         InrWithdrawRequest savedRequest = withdrawService.saveWithdrawRequest(request);
         return ResponseEntity.ok(savedRequest);
     }
 
-
-    // ✅ Admin: View all pending withdrawals
     @GetMapping("/pending")
     public ResponseEntity<List<Map<String, Object>>> getPendingWithdrawals() {
         List<InrWithdrawRequest> pendingList = withdrawService.getPendingWithdrawals();
@@ -50,7 +46,6 @@ public class InrWithdrawController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ Admin: Approve a specific withdrawal request
     @PutMapping("/{id}/approve")
     public ResponseEntity<String> approveWithdraw(@PathVariable Long id) {
         boolean approved = withdrawService.approveWithdrawal(id);
@@ -74,18 +69,12 @@ public class InrWithdrawController {
             row.put("accountNumber", entry.getAccountNumber());
             row.put("ifscCode", entry.getIfscCode());
             row.put("approved", entry.isApproved());
-
-            // ✅ Format requestedAt using DateTimeFormatter
             if (entry.getRequestedAt() != null) {
-                String formatted = entry.getRequestedAt()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                row.put("requestedAt", formatted);
+                row.put("requestedAt", formatter.format(entry.getRequestedAt()));
             }
-
             response.add(row);
         }
 
         return ResponseEntity.ok(response);
     }
-
 }
