@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -65,6 +66,7 @@ public class UsdtDepositService {
             UsdtDepositRequest req = depositOpt.get();
             if (!req.isVerified()) {
                 req.setVerified(true);
+                req.setVerifiedAt(LocalDateTime.now()); // ✅ Set timestamp
                 usdtDepositRequestRepository.save(req);
 
                 // 🔁 Update user's USDT balance
