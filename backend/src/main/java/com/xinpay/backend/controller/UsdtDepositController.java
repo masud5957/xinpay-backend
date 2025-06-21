@@ -68,11 +68,34 @@ public class UsdtDepositController {
         return status ? ResponseEntity.ok("Verified") : ResponseEntity.status(404).body("Not found");
     }
 
-    // ✅ User: Get all USDT deposit history
+ // ✅ User: Get all USDT deposit history (formatted with verifiedAt and type)
     @GetMapping("/all/{userId}")
-    public ResponseEntity<List<UsdtDepositRequest>> getAll(@PathVariable String userId) {
-        return ResponseEntity.ok(usdtDepositService.getAllDepositsByUser(userId));
+    public ResponseEntity<List<Map<String, Object>>> getAll(@PathVariable String userId) {
+        List<UsdtDepositRequest> all = usdtDepositService.getAllDepositsByUser(userId);
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (UsdtDepositRequest deposit : all) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id", deposit.getId());
+            entry.put("userId", deposit.getUserId());
+            entry.put("amount", deposit.getAmount());
+            entry.put("verified", deposit.isVerified());
+            entry.put("type", deposit.getAmount() < 0 ? "Withdrawal" : "Deposit");
+
+            // ✅ Format verifiedAt timestamp
+            if (deposit.getVerifiedAt() != null) {
+                String formattedDateTime = deposit.getVerifiedAt().format(
+                    java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                );
+                entry.put("verifiedAt", formattedDateTime);
+            }
+
+            response.add(entry);
+        }
+
+        return ResponseEntity.ok(response);
     }
+
 
     // ✅ User: Get USDT balance
     @GetMapping("/balance/{userId}")

@@ -24,6 +24,10 @@ public class InrDepositService {
     public InrDepositRequest uploadDeposit(String userId, MultipartFile file, Double amount) throws IOException {
         String originalName = file.getOriginalFilename();
         long size = file.getSize();
+        if (amount == null || amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than 0");
+        }
+
 
         if (originalName == null || originalName.isEmpty() || size == 0) {
             throw new IOException("Invalid file. Name or size is missing.");
