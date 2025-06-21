@@ -84,9 +84,8 @@ public class UsdtDepositController {
 
             // ✅ Format verifiedAt timestamp
             if (deposit.getVerifiedAt() != null) {
-                String formattedDateTime = deposit.getVerifiedAt().format(
-                    java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                );
+                String formattedDateTime = deposit.getVerifiedAt().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                
                 entry.put("verifiedAt", formattedDateTime);
             }
 

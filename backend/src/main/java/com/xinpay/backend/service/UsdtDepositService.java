@@ -70,7 +70,7 @@ public class UsdtDepositService {
             UsdtDepositRequest req = depositOpt.get();
             if (!req.isVerified()) {
                 req.setVerified(true);
-                req.setVerifiedAt(LocalDateTime.now()); // ✅ Set timestamp
+                req.setVerifiedAt(java.time.LocalDateTime.now()); // ✅ Set timestamp
                 usdtDepositRequestRepository.save(req);
 
                 // 🔁 Update user's USDT balance
