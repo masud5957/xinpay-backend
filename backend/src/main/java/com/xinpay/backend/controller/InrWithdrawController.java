@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/inr-withdraw")
@@ -15,6 +16,8 @@ public class InrWithdrawController {
 
     @Autowired
     private InrWithdrawService withdrawService;
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a");
 
     // ✅ User: Submit INR withdraw request
     @PostMapping("/request")
@@ -25,9 +28,25 @@ public class InrWithdrawController {
 
     // ✅ Admin: View all pending withdrawals
     @GetMapping("/pending")
-    public ResponseEntity<List<InrWithdrawRequest>> getPendingWithdrawals() {
+    public ResponseEntity<List<Map<String, Object>>> getPendingWithdrawals() {
         List<InrWithdrawRequest> pendingList = withdrawService.getPendingWithdrawals();
-        return ResponseEntity.ok(pendingList);
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (InrWithdrawRequest req : pendingList) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id", req.getId());
+            entry.put("userId", req.getUserId());
+            entry.put("amount", req.getAmount());
+            entry.put("accountNumber", req.getAccountNumber());
+            entry.put("ifscCode", req.getIfscCode());
+            entry.put("approved", req.isApproved());
+            if (req.getRequestedAt() != null) {
+                entry.put("requestedAt", formatter.format(req.getRequestedAt()));
+            }
+            response.add(entry);
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     // ✅ Admin: Approve a specific withdrawal request
@@ -43,8 +62,24 @@ public class InrWithdrawController {
 
     // ✅ User: View all withdrawal history
     @GetMapping("/all/{userId}")
-    public ResponseEntity<List<InrWithdrawRequest>> getAllByUser(@PathVariable String userId) {
+    public ResponseEntity<List<Map<String, Object>>> getAllByUser(@PathVariable String userId) {
         List<InrWithdrawRequest> history = withdrawService.getAllWithdrawalsByUser(userId);
-        return ResponseEntity.ok(history);
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (InrWithdrawRequest req : history) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id", req.getId());
+            entry.put("userId", req.getUserId());
+            entry.put("amount", req.getAmount());
+            entry.put("accountNumber", req.getAccountNumber());
+            entry.put("ifscCode", req.getIfscCode());
+            entry.put("approved", req.isApproved());
+            if (req.getRequestedAt() != null) {
+                entry.put("requestedAt", formatter.format(req.getRequestedAt()));
+            }
+            response.add(entry);
+        }
+
+        return ResponseEntity.ok(response);
     }
 }

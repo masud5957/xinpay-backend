@@ -1,6 +1,9 @@
 package com.xinpay.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "inr_withdraw_requests")
@@ -19,6 +22,9 @@ public class InrWithdrawRequest {
     private String ifscCode;
 
     private boolean approved;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") // ✅ Date format for JSON response
+    private LocalDateTime requestedAt; // ✅ New field
 
     // Constructors
     public InrWithdrawRequest() {}
@@ -78,5 +84,13 @@ public class InrWithdrawRequest {
 
     public void setApproved(boolean approved) {
         this.approved = approved;
+    }
+
+    public LocalDateTime getRequestedAt() {
+        return requestedAt;
+    }
+
+    public void setRequestedAt(LocalDateTime requestedAt) {
+        this.requestedAt = requestedAt;
     }
 }

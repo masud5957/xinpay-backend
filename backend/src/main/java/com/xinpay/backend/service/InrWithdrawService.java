@@ -6,6 +6,7 @@ import com.xinpay.backend.service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,9 +19,10 @@ public class InrWithdrawService {
     @Autowired
     private BalanceService balanceService;
 
-    // ✅ Save a new withdraw request
+    // ✅ Save a new withdraw request with timestamp
     public InrWithdrawRequest saveWithdrawRequest(InrWithdrawRequest request) {
         request.setApproved(false); // Default to pending
+        request.setRequestedAt(LocalDateTime.now()); // ✅ Set request date and time
         return withdrawRepo.save(request);
     }
 
@@ -43,7 +45,7 @@ public class InrWithdrawService {
             double currentBalance = balanceService.getInr(request.getUserId());
 
             if (currentBalance >= request.getAmount()) {
-                // Deduct from actual Balance table
+                // Deduct from Balance table
                 balanceService.subtractInr(request.getUserId(), request.getAmount());
 
                 // Mark as approved
