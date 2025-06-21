@@ -60,26 +60,31 @@ public class InrWithdrawController {
         }
     }
 
-    // ✅ User: View all withdrawal history
     @GetMapping("/all/{userId}")
     public ResponseEntity<List<Map<String, Object>>> getAllByUser(@PathVariable String userId) {
         List<InrWithdrawRequest> history = withdrawService.getAllWithdrawalsByUser(userId);
         List<Map<String, Object>> response = new ArrayList<>();
 
-        for (InrWithdrawRequest req : history) {
-            Map<String, Object> entry = new HashMap<>();
-            entry.put("id", req.getId());
-            entry.put("userId", req.getUserId());
-            entry.put("amount", req.getAmount());
-            entry.put("accountNumber", req.getAccountNumber());
-            entry.put("ifscCode", req.getIfscCode());
-            entry.put("approved", req.isApproved());
-            if (req.getRequestedAt() != null) {
-                entry.put("requestedAt", formatter.format(req.getRequestedAt()));
+        for (InrWithdrawRequest entry : history) {
+            Map<String, Object> row = new HashMap<>();
+            row.put("id", entry.getId());
+            row.put("userId", entry.getUserId());
+            row.put("amount", entry.getAmount());
+            row.put("accountNumber", entry.getAccountNumber());
+            row.put("ifscCode", entry.getIfscCode());
+            row.put("approved", entry.isApproved());
+
+            // ✅ Format requestedAt using DateTimeFormatter
+            if (entry.getRequestedAt() != null) {
+                String formatted = entry.getRequestedAt()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                row.put("requestedAt", formatted);
             }
-            response.add(entry);
+
+            response.add(row);
         }
 
         return ResponseEntity.ok(response);
     }
+
 }
