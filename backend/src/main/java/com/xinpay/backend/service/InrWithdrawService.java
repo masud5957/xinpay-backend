@@ -22,7 +22,7 @@ public class InrWithdrawService {
     // ✅ Save a new withdraw request with timestamp
     public InrWithdrawRequest saveWithdrawRequest(InrWithdrawRequest request) {
         request.setApproved(false); // Default to pending
-        request.setRequestedAt(LocalDateTime.now()); // ✅ Correctly sets the timestamp
+        //request.setRequestedAt(LocalDateTime.now()); // ✅ Correctly sets the timestamp
         return withdrawRepo.save(request);
     }
 
