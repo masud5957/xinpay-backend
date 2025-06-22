@@ -25,20 +25,18 @@ public class Account {
     @Column(nullable = false)
     private String ifsc;
 
-    @Lob
+    
     @Column(nullable = false)
     private String loginDetails;
 
     @Column(nullable = false)
     private String fundType; // "Gaming" or "Stock"
 
-    private String photoReferences; // Comma-separated photo paths
-
     public Account() {
     }
 
     public Account(String userId, String accountType, String bankName, String accountNumber,
-                   String ifsc, String loginDetails, String fundType, String photoReferences) {
+                   String ifsc, String loginDetails, String fundType) {
         this.userId = userId;
         this.accountType = accountType;
         this.bankName = bankName;
@@ -46,7 +44,6 @@ public class Account {
         this.ifsc = ifsc;
         this.loginDetails = loginDetails;
         this.fundType = fundType;
-        this.photoReferences = photoReferences;
     }
 
     public Long getId() {
@@ -81,10 +78,6 @@ public class Account {
         return fundType;
     }
 
-    public String getPhotoReferences() {
-        return photoReferences;
-    }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -115,9 +108,5 @@ public class Account {
 
     public void setFundType(String fundType) {
         this.fundType = fundType;
-    }
-
-    public void setPhotoReferences(String photoReferences) {
-        this.photoReferences = photoReferences;
     }
 }
