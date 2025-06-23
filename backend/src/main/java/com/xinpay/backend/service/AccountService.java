@@ -23,8 +23,8 @@ public class AccountService {
         return accountRepository.findByUserId(userId);
     }
 
-    // Delete a specific account by ID
-    public void deleteAccountById(String accountId) {
+ // ✅ Delete a specific account by ID (Long type)
+    public void deleteAccountById(Long accountId) {
         accountRepository.deleteById(accountId);
     }
 }

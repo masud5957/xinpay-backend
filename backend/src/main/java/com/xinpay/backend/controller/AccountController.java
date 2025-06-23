@@ -28,10 +28,10 @@ public class AccountController {
         return accountService.getAccountsByUserId(userId);
     }
 
- // 👉 Delete a specific account by ID
+    // ✅ Proper Delete endpoint using Long ID
     @DeleteMapping("/{accountId}")
-    public void deleteAccount(@PathVariable String accountId) {
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long accountId) {
         accountService.deleteAccountById(accountId);
+        return ResponseEntity.ok().build();
     }
-
 }

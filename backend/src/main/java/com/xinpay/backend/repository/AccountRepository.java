@@ -5,11 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface AccountRepository extends JpaRepository<Account, String> {
-    
+public interface AccountRepository extends JpaRepository<Account, Long> {
+
     // Get all accounts for a specific user
     List<Account> findByUserId(String userId);
 
-    // Delete specific account by its ID (optional since deleteById is built-in)
-    void deleteById(String id);
+    // Optional override (not needed since JpaRepository already provides it)
+    void deleteById(Long id);
 }
