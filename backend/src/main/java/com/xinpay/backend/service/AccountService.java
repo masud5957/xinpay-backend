@@ -22,4 +22,9 @@ public class AccountService {
     public List<Account> getAccountsByUserId(String userId) {
         return accountRepository.findByUserId(userId);
     }
+
+    // Delete a specific account by ID
+    public void deleteAccountById(String accountId) {
+        accountRepository.deleteById(accountId);
+    }
 }
