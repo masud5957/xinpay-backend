@@ -31,11 +31,17 @@ public class Commission {
     @Column(nullable = false)
     private String fundType; // "Gaming" or "Stock"
 
+    @Column(nullable = false)
+    private double amount;
+
+    @Column(nullable = false)
+    private String timestamp;  // ✅ Provided by user
+
     public Commission() {
     }
 
     public Commission(String userId, String accountType, String bankName, String accountNumber,
-                      String ifsc, String loginDetails, String fundType) {
+                      String ifsc, String loginDetails, String fundType, double amount, String timestamp) {
         this.userId = userId;
         this.accountType = accountType;
         this.bankName = bankName;
@@ -43,69 +49,49 @@ public class Commission {
         this.ifsc = ifsc;
         this.loginDetails = loginDetails;
         this.fundType = fundType;
+        this.amount = amount;
+        this.timestamp = timestamp;
     }
 
-    public Long getId() {
-        return id;
-    }
+    // 🟦 Getters
+    public Long getId() { return id; }
 
-    public String getUserId() {
-        return userId;
-    }
+    public String getUserId() { return userId; }
 
-    public String getAccountType() {
-        return accountType;
-    }
+    public String getAccountType() { return accountType; }
 
-    public String getBankName() {
-        return bankName;
-    }
+    public String getBankName() { return bankName; }
 
-    public String getAccountNumber() {
-        return accountNumber;
-    }
+    public String getAccountNumber() { return accountNumber; }
 
-    public String getIfsc() {
-        return ifsc;
-    }
+    public String getIfsc() { return ifsc; }
 
-    public String getLoginDetails() {
-        return loginDetails;
-    }
+    public String getLoginDetails() { return loginDetails; }
 
-    public String getFundType() {
-        return fundType;
-    }
+    public String getFundType() { return fundType; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public double getAmount() { return amount; }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    public String getTimestamp() { return timestamp; }
 
-    public void setAccountType(String accountType) {
-        this.accountType = accountType;
-    }
+    // 🟨 Setters
+    public void setId(Long id) { this.id = id; }
 
-    public void setBankName(String bankName) {
-        this.bankName = bankName;
-    }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
+    public void setAccountType(String accountType) { this.accountType = accountType; }
 
-    public void setIfsc(String ifsc) {
-        this.ifsc = ifsc;
-    }
+    public void setBankName(String bankName) { this.bankName = bankName; }
 
-    public void setLoginDetails(String loginDetails) {
-        this.loginDetails = loginDetails;
-    }
+    public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
 
-    public void setFundType(String fundType) {
-        this.fundType = fundType;
-    }
+    public void setIfsc(String ifsc) { this.ifsc = ifsc; }
+
+    public void setLoginDetails(String loginDetails) { this.loginDetails = loginDetails; }
+
+    public void setFundType(String fundType) { this.fundType = fundType; }
+
+    public void setAmount(double amount) { this.amount = amount; }
+
+    public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
 }
