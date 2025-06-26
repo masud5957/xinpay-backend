@@ -50,19 +50,18 @@ public class BankDetailsController {
         try {
             String qrUrl = null;
 
-            // Save uploaded QR image
             if (qrFile != null && !qrFile.isEmpty()) {
                 String fileName = UUID.randomUUID() + "_" + qrFile.getOriginalFilename();
-
-                // Store in same directory configured in WebConfig
                 String uploadDir = Paths.get(System.getProperty("user.home"), "xinpay-uploads").toString();
                 Path uploadPath = Paths.get(uploadDir);
-                Files.createDirectories(uploadPath); // Ensure dir exists
+                Files.createDirectories(uploadPath);
 
                 Path filePath = uploadPath.resolve(fileName);
                 qrFile.transferTo(filePath);
 
-                qrUrl = "/uploads/" + fileName; // Public access path
+                // ✅ Return full URL for Android to access
+                String baseUrl = "https://xinpay-backend.onrender.com"; // or http://localhost:8080 for local
+                qrUrl = baseUrl + "/uploads/" + fileName;
             }
 
             BankDetails newDetails = new BankDetails(accountNumber, ifscCode, accountHolder, qrUrl);
@@ -74,4 +73,5 @@ public class BankDetailsController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
 }
