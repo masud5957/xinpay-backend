@@ -15,15 +15,13 @@ public class BankDetailsService {
         this.repository = repository;
     }
 
-    // Return latest (or first if only one exists)
     public BankDetails getBankDetails() {
         return repository.findAll()
                 .stream()
-                .reduce((first, second) -> second) // get last if more than one
+                .reduce((first, second) -> second) // get the last one if multiple exist
                 .orElse(null);
     }
 
-    // Replace or insert
     public BankDetails updateBankDetails(BankDetails newDetails) {
         List<BankDetails> existingList = repository.findAll();
 
@@ -31,13 +29,17 @@ public class BankDetailsService {
         if (existingList.isEmpty()) {
             bankDetails = new BankDetails();
         } else {
-            bankDetails = existingList.get(0);  // update existing
+            bankDetails = existingList.get(0);  // update existing one
         }
 
         bankDetails.setAccountNumber(newDetails.getAccountNumber());
         bankDetails.setIfscCode(newDetails.getIfscCode());
         bankDetails.setAccountHolder(newDetails.getAccountHolder());
-        bankDetails.setQrImageUrl(newDetails.getQrImageUrl());
+
+        // Only update QR if new value provided
+        if (newDetails.getQrImageUrl() != null) {
+            bankDetails.setQrImageUrl(newDetails.getQrImageUrl());
+        }
 
         return repository.save(bankDetails);
     }

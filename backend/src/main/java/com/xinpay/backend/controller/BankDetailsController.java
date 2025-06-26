@@ -2,19 +2,18 @@ package com.xinpay.backend.controller;
 
 import com.xinpay.backend.model.BankDetails;
 import com.xinpay.backend.service.BankDetailsService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 @RestController
 @RequestMapping("/api/bank-details")
-@CrossOrigin(origins = "*")  // Allow access from mobile apps
+@CrossOrigin(origins = "*")
 public class BankDetailsController {
 
     private final BankDetailsService service;
@@ -23,17 +22,14 @@ public class BankDetailsController {
         this.service = service;
     }
 
-    // GET latest bank details
+    // ✅ GET current bank details
     @GetMapping
     public ResponseEntity<BankDetails> getBankDetails() {
         BankDetails details = service.getBankDetails();
-        if (details == null) {
-            return ResponseEntity.noContent().build(); // Better than 404 if nothing exists
-        }
-        return ResponseEntity.ok(details);
+        return (details == null) ? ResponseEntity.noContent().build() : ResponseEntity.ok(details);
     }
 
-    // POST or PUT new or updated details
+    // ✅ Update via mobile/JSON body
     @PostMapping("/update")
     public ResponseEntity<BankDetails> updateBankDetails(@RequestBody BankDetails details) {
         if (details.getAccountNumber() == null || details.getIfscCode() == null || details.getAccountHolder() == null) {
@@ -42,7 +38,8 @@ public class BankDetailsController {
         BankDetails updated = service.updateBankDetails(details);
         return ResponseEntity.ok(updated);
     }
-    
+
+    // ✅ Admin Panel upload (HTML form with file)
     @PostMapping("/admin/update")
     public ResponseEntity<BankDetails> updateBankDetailsWithQr(
             @RequestParam String accountNumber,
@@ -53,20 +50,28 @@ public class BankDetailsController {
         try {
             String qrUrl = null;
 
+            // Save uploaded QR image
             if (qrFile != null && !qrFile.isEmpty()) {
                 String fileName = UUID.randomUUID() + "_" + qrFile.getOriginalFilename();
-                Path uploadPath = Paths.get("uploads"); // Ensure this folder exists
-                Files.createDirectories(uploadPath);
+
+                // Store in same directory configured in WebConfig
+                String uploadDir = Paths.get(System.getProperty("user.home"), "xinpay-uploads").toString();
+                Path uploadPath = Paths.get(uploadDir);
+                Files.createDirectories(uploadPath); // Ensure dir exists
+
                 Path filePath = uploadPath.resolve(fileName);
                 qrFile.transferTo(filePath);
-                qrUrl = "/uploads/" + fileName;
+
+                qrUrl = "/uploads/" + fileName; // Public access path
             }
 
             BankDetails newDetails = new BankDetails(accountNumber, ifscCode, accountHolder, qrUrl);
-            return ResponseEntity.ok(service.updateBankDetails(newDetails));
+            BankDetails updated = service.updateBankDetails(newDetails);
+            return ResponseEntity.ok(updated);
+
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
-
 }

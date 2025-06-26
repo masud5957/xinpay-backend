@@ -14,7 +14,6 @@ public class BankDetails {
     private String accountHolder;
     private String qrImageUrl;
 
-    // Constructors
     public BankDetails() {}
 
     public BankDetails(String accountNumber, String ifscCode, String accountHolder, String qrImageUrl) {
@@ -24,7 +23,6 @@ public class BankDetails {
         this.qrImageUrl = qrImageUrl;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
