@@ -35,6 +35,7 @@ public class SecurityConfig {
                     "/api/inr-withdraw/**",      // ✅ ✅ Allow INR withdraw endpoints
                     "/api/accounts/**",
                     "/api/usdt-withdraw/**",
+                		"/api/bank-details/**",
                     "/api/commissions/**",
                     "/api/balance/**"            // ✅ Balance
                 ).permitAll()
