@@ -37,6 +37,7 @@ public class SecurityConfig {
                     "/api/usdt-withdraw/**",
                 		"/api/bank-details/**",
                     "/api/commissions/**",
+                    "/api/wallet/**",
                     "/api/balance/**"            // ✅ Balance
                 ).permitAll()
                 .anyRequest().authenticated()   // 🔐 Require auth for other routes

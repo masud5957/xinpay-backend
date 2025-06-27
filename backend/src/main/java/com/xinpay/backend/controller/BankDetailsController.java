@@ -60,7 +60,7 @@ public class BankDetailsController {
                 qrFile.transferTo(filePath);
 
                 // ✅ Return full URL for Android to access
-                String baseUrl = "https://xinpay-backend.onrender.com"; // or http://localhost:8080 for local
+                String baseUrl = "https://xinpay-backend.onrender.com"; // or http://localhost:8080 for local https://xinpay-backend.onrender.com
                 qrUrl = baseUrl + "/uploads/" + fileName;
             }
 
