@@ -20,7 +20,10 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // ✅ SIGN UP (Sends OTP to email)
+    // 🔐 Temporary in-memory storage of OTP and user data
+    private final Map<String, Map<String, String>> tempUserStore = new HashMap<>();
+
+    // ✅ SIGN UP (Send OTP only — do NOT store user in DB)
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody Map<String, String> body) {
         String email = body.get("email");
@@ -39,15 +42,13 @@ public class AuthController {
 
         String otp = String.valueOf(new Random().nextInt(900000) + 100000); // 6-digit OTP
 
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(password);
-        user.setFullName(fullName);
-        user.setOtp(otp);
-        user.setVerified(false);
-        userRepository.save(user);
+        Map<String, String> userData = new HashMap<>();
+        userData.put("fullName", fullName);
+        userData.put("password", password);
+        userData.put("otp", otp);
+        tempUserStore.put(email, userData);
 
-        // Simulate sending OTP to email (Replace with actual email service)
+        // Simulate sending OTP to email (replace with actual email service)
         System.out.println("🔐 OTP for email " + email + " is: " + otp);
 
         return ResponseEntity.ok(Map.of(
@@ -55,35 +56,48 @@ public class AuthController {
         ));
     }
 
-    // ✅ VERIFY OTP
+    // ✅ VERIFY OTP AND THEN SAVE USER IN DB
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String otp = body.get("otp");
 
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found."));
+        // Check if user already exists (optional)
+        Optional<User> existing = userRepository.findByEmail(email);
+        if (existing.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "User already registered."));
         }
 
-        User user = optionalUser.get();
-        if (user.getOtp().equals(otp)) {
-            user.setVerified(true);
-            user.setOtp(null); // Clear OTP after verification
-            userRepository.save(user);
+        Map<String, String> userData = tempUserStore.get(email);
+        if (userData == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "No pending signup found. Try signing up again."));
+        }
 
-            String token = jwtUtil.generateToken(email);
-
-            return ResponseEntity.ok(Map.of(
-                    "message", "OTP verified. Account activated.",
-                    "token", token,
-                    "userId", String.valueOf(user.getId())
-            ));
-        } else {
+        if (!userData.get("otp").equals(otp)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid OTP."));
         }
+
+        // ✅ OTP is correct — now save user to DB
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(userData.get("password")); // Hash this in real apps
+        user.setFullName(userData.get("fullName"));
+        user.setVerified(true);
+        
+
+        userRepository.save(user);
+        tempUserStore.remove(email); // Clear temp store
+
+        String token = jwtUtil.generateToken(email);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "OTP verified. Account activated.",
+                "token", token,
+                "userId", String.valueOf(user.getId())
+        ));
     }
 
     // ✅ LOGIN

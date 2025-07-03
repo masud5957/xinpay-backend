@@ -11,11 +11,13 @@ public class User {
     private Long id;
 
     private String fullName;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
 
-    private String otp;
-
+    @Column(nullable = false)
     private boolean isVerified = false;
 
     // ✅ Getters & Setters
@@ -50,14 +52,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getOtp() {
-        return otp;
-    }
-
-    public void setOtp(String otp) {
-        this.otp = otp;
     }
 
     public boolean isVerified() {
