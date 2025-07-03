@@ -13,10 +13,13 @@ public class User {
     private String fullName;
     private String email;
     private String password;
-    
 
+    private String otp;
+
+    private boolean isVerified = false;
 
     // ✅ Getters & Setters
+
     public Long getId() {
         return id;
     }
@@ -47,5 +50,21 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
     }
 }
