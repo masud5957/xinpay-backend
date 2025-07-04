@@ -22,14 +22,21 @@ public class BankDetailsController {
         this.service = service;
     }
 
-    // ✅ GET current bank details
+    // ✅ GET current bank details (with cache-busting QR image URL)
     @GetMapping
     public ResponseEntity<BankDetails> getBankDetails() {
         BankDetails details = service.getBankDetails();
+
+        if (details != null && details.getQrImageUrl() != null) {
+            // Strip old ?v= and append new version for cache busting
+            String originalUrl = details.getQrImageUrl().split("\\?")[0];
+            details.setQrImageUrl(originalUrl + "?v=" + System.currentTimeMillis());
+        }
+
         return (details == null) ? ResponseEntity.noContent().build() : ResponseEntity.ok(details);
     }
 
-    // ✅ Update via mobile/JSON body
+    // ✅ Update via mobile JSON body (no QR image)
     @PostMapping("/update")
     public ResponseEntity<BankDetails> updateBankDetails(@RequestBody BankDetails details) {
         if (details.getAccountNumber() == null || details.getIfscCode() == null || details.getAccountHolder() == null) {
@@ -39,7 +46,7 @@ public class BankDetailsController {
         return ResponseEntity.ok(updated);
     }
 
-    // ✅ Admin Panel upload (HTML form with file)
+    // ✅ Admin Panel: Upload QR image and update all fields
     @PostMapping("/admin/update")
     public ResponseEntity<BankDetails> updateBankDetailsWithQr(
             @RequestParam String accountNumber,
@@ -59,9 +66,9 @@ public class BankDetailsController {
                 Path filePath = uploadPath.resolve(fileName);
                 qrFile.transferTo(filePath);
 
-                // ✅ Return full URL for Android to access
-                String baseUrl = "https://xinpay-backend.onrender.com"; // or http://localhost:8080 for local https://xinpay-backend.onrender.com
-                qrUrl = baseUrl + "/uploads/" + fileName;
+                // ✅ Append timestamp to QR image URL for cache busting
+                String baseUrl = "https://xinpay-backend.onrender.com";
+                qrUrl = baseUrl + "/uploads/" + fileName + "?v=" + System.currentTimeMillis();
             }
 
             BankDetails newDetails = new BankDetails(accountNumber, ifscCode, accountHolder, qrUrl);
@@ -73,5 +80,4 @@ public class BankDetailsController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 }
