@@ -20,6 +20,8 @@ public class User {
     @Column(nullable = false)
     private boolean isVerified = false;
 
+    private String profileImageUrl; // ✅ New field for profile picture
+
     // ✅ Getters & Setters
 
     public Long getId() {
@@ -60,5 +62,13 @@ public class User {
 
     public void setVerified(boolean verified) {
         isVerified = verified;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }

@@ -1,3 +1,4 @@
+// ✅ UserRepository.java
 package com.xinpay.backend.repository;
 
 import com.xinpay.backend.model.User;

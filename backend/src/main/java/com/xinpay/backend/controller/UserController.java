@@ -1,9 +1,12 @@
+// ✅ UserController.java
 package com.xinpay.backend.controller;
 
 import com.xinpay.backend.model.User;
 import com.xinpay.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -16,8 +19,19 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/{id}")
-    public User getUserProfile(@PathVariable Long id) {
+    public ResponseEntity<User> getUserProfile(@PathVariable Long id) {
         Optional<User> userOptional = userService.getUserById(id);
-        return userOptional.orElseThrow(() -> new RuntimeException("User not found"));
+        return userOptional.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/profile-image")
+    public ResponseEntity<User> updateProfileImage(@PathVariable Long id, @RequestParam String imageUrl) {
+        try {
+            User updatedUser = userService.updateProfileImage(id, imageUrl);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
