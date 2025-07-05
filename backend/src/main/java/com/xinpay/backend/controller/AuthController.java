@@ -202,4 +202,24 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("message", "Password successfully reset."));
     }
+    
+ // ✅ OTP Validation Only (For Password Reset Flow)
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<?> verifyResetOtp(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String otp = body.get("otp");
+
+        if (email == null || otp == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing email or OTP."));
+        }
+
+        Map<String, String> otpData = tempUserStore.get(email);
+        if (otpData == null || !otpData.get("otp").equals(otp) || !"reset".equals(otpData.get("type"))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired OTP."));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "OTP verified successfully."));
+    }
+
+    
 }
