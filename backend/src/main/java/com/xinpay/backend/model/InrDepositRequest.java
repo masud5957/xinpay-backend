@@ -19,11 +19,10 @@ public class InrDepositRequest {
 
     private boolean verified;
 
-    private boolean rejected; // ✅ New field
-
     private Double amount;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // ✅ Format for JSON response
+    
     private LocalDateTime verifiedAt;
 
     // ✅ Getters and Setters
@@ -59,14 +58,6 @@ public class InrDepositRequest {
         this.verified = verified;
     }
 
-    public boolean isRejected() {
-        return rejected;
-    }
-
-    public void setRejected(boolean rejected) {
-        this.rejected = rejected;
-    }
-
     public Double getAmount() {
         return amount;
     }
@@ -75,6 +66,7 @@ public class InrDepositRequest {
         this.amount = amount;
     }
 
+    // ✅ New Getter & Setter
     public LocalDateTime getVerifiedAt() {
         return verifiedAt;
     }
