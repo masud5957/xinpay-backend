@@ -142,4 +142,64 @@ public class AuthController {
                 "userId", String.valueOf(user.getId())
         ));
     }
+
+    // ✅ Forgot Password - Send OTP
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+
+        if (email == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email is required."));
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found with this email."));
+        }
+
+        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
+
+        Map<String, String> otpMap = new HashMap<>();
+        otpMap.put("otp", otp);
+        otpMap.put("type", "reset");
+        tempUserStore.put(email, otpMap);
+
+        try {
+            emailService.sendOtpEmail(email, otp);
+            return ResponseEntity.ok(Map.of("message", "OTP sent to your email for password reset."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to send OTP email."));
+        }
+    }
+
+    // ✅ Reset Password
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String otp = body.get("otp");
+        String newPassword = body.get("newPassword");
+
+        if (email == null || otp == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields."));
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+
+        Map<String, String> otpData = tempUserStore.get(email);
+        if (otpData == null || !otpData.get("otp").equals(otp) || !"reset".equals(otpData.get("type"))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or expired OTP."));
+        }
+
+        User user = userOpt.get();
+        user.setPassword(newPassword); // TODO: Hash in production
+        userRepository.save(user);
+        tempUserStore.remove(email);
+
+        return ResponseEntity.ok(Map.of("message", "Password successfully reset."));
+    }
 }
