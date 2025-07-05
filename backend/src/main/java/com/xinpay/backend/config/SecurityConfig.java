@@ -36,6 +36,7 @@ public class SecurityConfig {
                     "/api/accounts/**",
                     "/api/usdt-withdraw/**",
                 		"/api/bank-details/**",
+                		"/api/notifications/**",
                 		"/api/user/**",
                     "/api/commissions/**",
                     "/api/wallet/**",

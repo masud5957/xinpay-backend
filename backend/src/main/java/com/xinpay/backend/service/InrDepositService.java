@@ -21,13 +21,15 @@ public class InrDepositService {
     @Autowired
     private BalanceRepository balanceRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public InrDepositRequest uploadDeposit(String userId, MultipartFile file, Double amount) throws IOException {
         String originalName = file.getOriginalFilename();
         long size = file.getSize();
         if (amount == null || amount <= 0) {
             throw new IllegalArgumentException("Amount must be greater than 0");
         }
-
 
         if (originalName == null || originalName.isEmpty() || size == 0) {
             throw new IOException("Invalid file. Name or size is missing.");
@@ -52,7 +54,12 @@ public class InrDepositService {
         deposit.setVerified(false);
         deposit.setAmount(amount);
 
-        return inrDepositRequestRepository.save(deposit);
+        InrDepositRequest savedDeposit = inrDepositRequestRepository.save(deposit);
+
+        // 🔔 Notify user
+        notificationService.sendNotification(userId, "Deposit Received", "We have received your INR deposit request of ₹" + amount + ". Please wait up to 1 hour for verification.");
+
+        return savedDeposit;
     }
 
     public Optional<InrDepositRequest> getDepositByUserId(String userId) {
@@ -69,8 +76,7 @@ public class InrDepositService {
             InrDepositRequest req = depositOpt.get();
             if (!req.isVerified()) {
                 req.setVerified(true);
-                req.setVerifiedAt(java.time.LocalDateTime.now()); // ✅ Set verified timestamp
-             
+                req.setVerifiedAt(java.time.LocalDateTime.now());
                 inrDepositRequestRepository.save(req);
 
                 // 🔁 Update user's INR balance
@@ -85,12 +91,14 @@ public class InrDepositService {
 
                 balance.setInrBalance(balance.getInrBalance() + req.getAmount());
                 balanceRepository.save(balance);
+
+                // 🔔 Notify user
+                notificationService.sendNotification(req.getUserId(), "Deposit Verified", "Your INR deposit of ₹" + req.getAmount() + " has been verified and added to your balance.");
             }
             return true;
         }
         return false;
     }
-
 
     public List<InrDepositRequest> getPendingDeposits() {
         return inrDepositRequestRepository.findByVerifiedFalse();
