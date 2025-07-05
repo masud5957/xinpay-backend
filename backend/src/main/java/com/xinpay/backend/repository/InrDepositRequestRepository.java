@@ -10,9 +10,13 @@ public interface InrDepositRequestRepository extends JpaRepository<InrDepositReq
 
     Optional<InrDepositRequest> findTopByUserIdOrderByIdDesc(String userId);
 
-    List<InrDepositRequest> findByVerifiedFalse();
+    // Only fetch deposits that are not verified and not rejected
+    List<InrDepositRequest> findByVerifiedFalseAndRejectedFalse();
 
     List<InrDepositRequest> findAllByUserIdOrderByIdDesc(String userId);
 
-    List<InrDepositRequest> findByUserIdAndVerifiedTrue(String userId); // ✅ For balance calculation
+    List<InrDepositRequest> findByUserIdAndVerifiedTrue(String userId);
+
+    // Optional: Get all rejected requests
+    List<InrDepositRequest> findByRejectedTrue();
 }

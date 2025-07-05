@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -24,10 +25,10 @@ public class InrDepositService {
     public InrDepositRequest uploadDeposit(String userId, MultipartFile file, Double amount) throws IOException {
         String originalName = file.getOriginalFilename();
         long size = file.getSize();
+
         if (amount == null || amount <= 0) {
             throw new IllegalArgumentException("Amount must be greater than 0");
         }
-
 
         if (originalName == null || originalName.isEmpty() || size == 0) {
             throw new IOException("Invalid file. Name or size is missing.");
@@ -50,6 +51,7 @@ public class InrDepositService {
         deposit.setUserId(userId);
         deposit.setImageUrl(fileName);
         deposit.setVerified(false);
+        deposit.setRejected(false); // ✅ default not rejected
         deposit.setAmount(amount);
 
         return inrDepositRequestRepository.save(deposit);
@@ -67,13 +69,13 @@ public class InrDepositService {
         Optional<InrDepositRequest> depositOpt = inrDepositRequestRepository.findById(id);
         if (depositOpt.isPresent()) {
             InrDepositRequest req = depositOpt.get();
-            if (!req.isVerified()) {
+
+            if (!req.isVerified() && !req.isRejected()) {
                 req.setVerified(true);
-                req.setVerifiedAt(java.time.LocalDateTime.now()); // ✅ Set verified timestamp
-             
+                req.setVerifiedAt(LocalDateTime.now());
                 inrDepositRequestRepository.save(req);
 
-                // 🔁 Update user's INR balance
+                // Update balance
                 Balance balance = balanceRepository.findById(req.getUserId())
                         .orElseGet(() -> {
                             Balance newBalance = new Balance();
@@ -91,9 +93,25 @@ public class InrDepositService {
         return false;
     }
 
+    // ✅ Reject deposit
+    public boolean rejectDeposit(Long id) {
+        Optional<InrDepositRequest> depositOpt = inrDepositRequestRepository.findById(id);
+        if (depositOpt.isPresent()) {
+            InrDepositRequest req = depositOpt.get();
 
+            if (!req.isVerified() && !req.isRejected()) {
+                req.setRejected(true);
+                req.setVerifiedAt(LocalDateTime.now());
+                inrDepositRequestRepository.save(req);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    // ✅ Only show pending (not verified and not rejected)
     public List<InrDepositRequest> getPendingDeposits() {
-        return inrDepositRequestRepository.findByVerifiedFalse();
+        return inrDepositRequestRepository.findByVerifiedFalseAndRejectedFalse();
     }
 
     public double getTotalBalanceByUser(String userId) {
