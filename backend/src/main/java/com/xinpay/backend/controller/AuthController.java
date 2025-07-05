@@ -3,6 +3,8 @@ package com.xinpay.backend.controller;
 import com.xinpay.backend.model.User;
 import com.xinpay.backend.repository.UserRepository;
 import com.xinpay.backend.security.JwtUtil;
+import com.xinpay.backend.service.EmailService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,9 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private EmailService emailService;
 
     // 🔐 In-memory OTP + user data storage
     private final Map<String, Map<String, String>> tempUserStore = new HashMap<>();
@@ -47,12 +52,15 @@ public class AuthController {
         userData.put("otp", otp);
         tempUserStore.put(email, userData);
 
-        // TODO: Replace this with actual email service
-        System.out.println("🔐 OTP for " + email + ": " + otp);
-
-        return ResponseEntity.ok(Map.of(
-                "message", "OTP sent to your email. Please verify to complete registration."
-        ));
+        try {
+            emailService.sendOtpEmail(email, otp);
+            return ResponseEntity.ok(Map.of(
+                    "message", "OTP sent to your email. Please verify to complete registration."
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to send OTP email. Please try again."));
+        }
     }
 
     // ✅ VERIFY OTP and CREATE USER
